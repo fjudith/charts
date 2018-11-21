@@ -1,0 +1,225 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "keycloak-gatekeeper.fullname" . }}
+  labels:
+    app: {{ template "keycloak-gatekeeper.name" . }}
+    chart: {{ template "keycloak-gatekeeper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  config.yml: |+
+    listen: {{ .Values.configmap.listen }}
+    {{- if .Values.configmap.listenHttp }}
+    listen-http: {{ .Values.configmap.listenHttp }}
+    {{- end }}
+    discovery-url: {{ .Values.configmap.discoveryUrl }}
+    client-id: {{ .Values.configmap.clientId }}
+    client-secret: {{ .Values.configmap.clientSecret }}
+    {{- if .Values.configmap.redirectionUrl }}
+    redirection-url: {{ .Values.configmap.redirectionUrl }}
+    {{- end }}
+    {{- if .Values.configmap.revocationUrl }}
+    revocation-url: {{ .Values.configmap.revocationUrl }}
+    {{- end }}
+    skip-openid-provider-tls-verify: {{ .Values.configmap.skipOpenidProviderTlsVerify }}
+    {{- if .Values.configmap.openidProviderProxy }}
+    openid-provider-proxy: {{ .Values.configmap.openidProviderProxy }}
+    {{- end }}
+    openid-provider-timeout: {{ .Values.configmap.openidProviderTimeout }}
+    {{- if .Values.configmap.baseUri }}
+    base-uri: {{ .Values.configmap.baseUri }}
+    {{- end }}
+    {{- if .Values.configmap.scopes }}
+    scopes:
+      {{- range .Values.configmap.scopes }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    upstream-url: {{ .Values.configmap.upstreamUrl }}
+    {{- if .Values.configmap.upstreamCa }}
+    upstream-ca: {{ .Values.configmap.upstreamCa }}
+    {{- end }}
+    {{- if .Values.configmap.resources }}
+    resources:
+    {{- range $index, $resources := .Values.configmap.resources }}
+      - uri: {{ $resources.uri }}
+        {{- if $resources.methods }}
+        methods:
+          {{- range $resources.methods }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+        {{- if $resources.roles }}
+        roles:
+          {{- range $resources.roles }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+        {{- if $resources.groups }}
+        groups:
+          {{- range $resources.groups }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+        {{- if index . "white-listed" }}
+        white-listed: {{ index . "white-listed" }}
+        {{- end }}
+        {{- if index . "require-any-role" }}
+        require-any-role: {{ index . "require-any-role" }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.configmap.headers }}
+    headers:
+    {{ toYaml .Values.configmap.headers | indent 2 }}
+    {{- end }}
+    preserve-host: {{ .Values.configmap.preserveHost }}
+    request-id-header: {{ .Values.configmap.requestIdHeader }}
+    {{- if .Values.configmap.responseHeaders }}
+    response-headers:
+    {{ toYaml .Values.configmap.responseHeaders | indent 2 }}
+    {{- end }}
+    enable-self-signed-tls: {{ .Values.configmap.enableSelfSignedTls }}
+    {{- if .Values.configmap.selfSignedTlsHostnames }}
+    self-signed-tls-hostnames:
+      {{- range .Values.configmap.selfSignedTlsHostnames }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    self-signed-tls-expiration: {{ .Values.configmap.selfSignedTlsExpiration }}
+    enable-request-id: {{ .Values.configmap.enableRequestId }}
+    enable-logout-redirect: {{ .Values.configmap.enableLogoutRedirect }}
+    enable-default-deny: {{ .Values.configmap.enableDefaultDeny }}
+    enable-encrypted-token: {{ .Values.configmap.enableEncryptedToken }}
+    enable-session-cookies: {{ .Values.configmap.enableSessionCookies }}
+    enable-logging: {{ .Values.configmap.enableLogging }}
+    enable-json-logging: {{ .Values.configmap.enableJsonLogging }}
+    enable-forwarding: {{ .Values.configmap.enableForwarding }}
+    enable-security-filter: {{ .Values.configmap.enableSecurityFilter }}
+    enable-refresh-tokens: {{ .Values.configmap.enableRefreshTokens }}
+    enable-login-handler: {{ .Values.configmap.enableLoginHandler }}
+    enable-token-header: {{ .Values.configmap.enableTokenHeader }}
+    enable-authorization-header: {{ .Values.configmap.enableAuthorizationHeader }}
+    enable-authorization-cookies: {{ .Values.configmap.enableAuthorizationCookies }}
+    enable-https-redirection: {{ .Values.configmap.enableHttpsRedirection }}
+    enable-profiling: {{ .Values.configmap.enableProfiling }}
+    enable-metrics: {{ .Values.configmap.enableMetrics }}
+    filter-browser-xss: {{ .Values.configmap.filterBrowserXss }}
+    filter-content-nosniff: {{ .Values.configmap.filterContentNosniff }}
+    filter-frame-deny: {{ .Values.configmap.filterFrameDeny }}
+    {{- if .Values.configmap.contentSecurityPolicy }}
+    content-security-policy: {{ .Values.configmap.contentSecurityPolicy }}
+    {{- end }}
+    localhost-metrics: {{ .Values.configmap.localhostMetrics }}
+    access-token-duration: {{ .Values.configmap.accessTokenDuration }}
+    {{- if .Values.configmap.cookieDomain }}
+    cookie-domain: {{ .Values.configmap.cookieDomain }}
+    {{- end }}
+    cookie-access-name: {{ .Values.configmap.cookieAccessName }}
+    cookie-refresh-name: {{ .Values.configmap.cookieRefreshName }}
+    secure-cookie: {{ .Values.configmap.secureCookie }}
+    http-only-cookie: {{ .Values.configmap.httpOnlyCookie }}
+    {{- if .Values.configmap.matchClaims }}
+    match-claims:
+    {{ toYaml .Values.configmap.matchClaims | indent 2 }}
+    {{- end }}
+    {{- if .Values.configmap.addClaims }}
+    add-claims: 
+      {{- range .Values.configmap.addClaims }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.configmap.tlsCert }}
+    tls-cert: {{ .Values.configmap.tlsCert }}
+    {{- end }}
+    {{- if .Values.configmap.tlsPrivateKey }}
+    tls-private-key: {{ .Values.configmap.tlsPrivateKey }}
+    {{- end }}
+    {{- if .Values.configmap.tlsCaCertificate }}
+    tls-ca-certificate: {{ .Values.configmap.tlsCaCertificate }}
+    {{- end }}
+    {{- if .Values.configmap.tlsCaKey }}
+    tls-ca-key: {{ .Values.configmap.tlsCaKey }}
+    {{- end }}
+    {{- if .Values.configmap.tlsClientCertificate }}
+    tls-client-certificate: {{ .Values.configmap.tlsClientCertificate }}
+    {{- end }}
+    skip-upstream-tls-verify: {{ .Values.configmap.skipUpstreamTlsVerify }}
+    {{- if .Values.configmap.corsOrigins }}
+    cors-origins:
+      {{- range .Values.configmap.coresOrigins }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.configmap.corsMethods }}
+    cors-methods:
+      {{- range .Values.configmap.coresMethods }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.configmap.corsHeaders }}
+    cors-headers:
+      {{- range .Values.configmap.coresHeaders }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.configmap.corsExposedHeaders }}
+    cors-exposed-headers:
+      {{- range .Values.configmap.corsExposedHeaders }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    cors-credentials: {{ .Values.configmap.corsCredentials }}
+    cors-max-age: {{ .Values.configmap.corsMaxAge }}
+    {{- if .Values.configmap.hostnames }}
+    hostnames:
+      {{- range .Values.configmap.hostnames }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.configmap.storeurl }}
+    store-url: {{ .Values.configmap.storeurl }}
+    {{- end }}
+    {{- if .Values.configmap.encryptionKey }}
+    encryption-key: {{ .Values.configmap.encryptionKey }}
+    {{- else }}
+    encryption-key: {{ randAlphaNum 32 | quote }}
+    {{- end }}
+    invalid-auth-redirects-with-303: {{ .Values.configmap.invalidAuthRedirectsWith303 }}
+    no-redirects: {{ .Values.configmap.noRedirects }}
+    skip-token-verification: {{ .Values.configmap.skipTokenVerification }}
+    upstream-keepalives: {{ .Values.configmap.upstreamKeepalives }}
+    upstream-timeout: {{ .Values.configmap.upstreamTimeout }}
+    upstream-keepalive-timeout: {{ .Values.configmap.upstreamKeepaliveTimeout }}
+    upstream-tls-handshake-timeout: {{ .Values.configmap.upstreamTlsHandshakeTimeout }}
+    upstream-response-header-timeout: {{ .Values.configmap.upstreamResponseHeaderTimeout }}
+    upstream-expect-continue-timeout: {{ .Values.configmap.upstreamExpectContinueTimeout }}
+    enabled-proxy-protocol: {{ .Values.configmap.enabledProxyProtocol }}
+    max-idle-connections: {{ .Values.configmap.maxIdleConnections }}
+    max-idle-connections-per-host: {{ .Values.configmap.maxIdleConnectionPerHost }}
+    server-read-timeout: {{ .Values.configmap.serverReadTimeout }}
+    server-write-timeout: {{ .Values.configmap.serverWriteTimeout }}
+    server-idle-timeout: {{ .Values.configmap.serverIdleTimeout }}
+    use-letsencrypt: {{ .Values.configmap.useLetsencrypt }}
+    letsencrypt-cache-dir: {{ .Values.configmap.letsencryptCacheDir }}
+    {{- if .Values.configmap.signInPage }}
+    sign-in-page: {{ .Values.configmap.signInPage }}
+    {{- end }}
+    {{- if .Values.configmap.forbiddenPage }}
+    forbidden-page: {{ .Values.configmap.forbiddenPage }}
+    {{- end }}
+    {{- if .Values.configmap.tags }}
+    tags:
+    {{ toYaml .Values.configmap.tags | indent 2 }}
+    {{- end }}
+    {{- if .Values.configmap.forwardingUsername }}
+    forwarding-username: {{ .Values.configmap.forwardingUsername }}
+    {{- end }}
+    {{- if .Values.configmap.forwardingPassword }}
+    forwarding-password: {{ .Values.configmap.forwardingPassword }}
+    {{- end }}
+    {{- if .Values.configmap.forwardingDomain }}
+    forwarding-domain: {{ .Values.configmap.forwardingDomain }}
+    {{- end }}
+    disable-all-logging: {{ .Values.configmap.disableAllLogging }}

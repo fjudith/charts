@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "keycloak-gatekeeper.fullname" . }}
+  labels:
+    app: {{ template "keycloak-gatekeeper.name" . }}
+    chart: {{ template "keycloak-gatekeeper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "keycloak-gatekeeper.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "keycloak-gatekeeper.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PROXY_LISTEN
+              value: 0.0.0.0:3000
+            {{- if .Values.listenHttp }}
+            - name: PROXY_LISTEN_HTTP
+            - value: {{ .Values.listenHttp | quote }}
+            {{- end }}
+            - name: PROXY_DISCOVERY_URL
+              value: {{ .Values.discoveryUrl | quote }}
+            - name: PROXY_CLIENT_ID
+              value: {{ .Values.clientId | quote }}
+            - name: PROXY_REDIRECTION_URL
+              value: {{ .Values.redirectionUrl | quote }}
+            - name: PROXY_ENABLE_REFRESH_TOKEN
+              value: {{ .Values.enableRefreshToken | quote }}
+            - name: PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "keycloak-gatekeeper.fullname" . }}
+                  key: clientSecret
+            {{- if .Values.revocationUrl }}
+            - name: PROXY_REVOCATION_URL
+            - value: {{ .Values.revocationUrl | quote }}
+            {{- end }}
+            - name: PROXY_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "keycloak-gatekeeper.fullname" . }}
+                  key: encryptionKey
+            - name: PROXY_UPSTREAM_URL
+              value: {{ .Values.upstreamUrl | quote }}
+            - name: PROXY_OAUTH_URI
+              value: {{ .Values.oauthUri | quote }}
+            - name: PROXY_REQUEST_ID_HEADER
+              value: {{ .Values.requestIdHeader | quote }}
+            - name: PROXY_ENABLE_SELF_SIGNED_TLS
+              value: {{ .Values.enableSelfSignedTls | quote }}
+            - name: PROXY_ENABLE_REQUEST_ID
+              value: {{ .Values.enableRequestId | quote }}
+            - name: PROXY_ENABLE_REFRESH_TOKEN
+              value: {{ .Values.enableRefreshToken | quote }}
+            - name: PROXY_ENABLE_LOGIN_HANDLER
+              value: {{ .Values.enableLoginHandler | quote }}
+            - name: PROXY_ENABLE_AUTHORIZATION_HEADER
+              value: {{ .Values.enableAuthorizationHeader | quote }}
+            - name: PROXY_ENABLE_AUTHORIZATION_COOKIES
+              value: {{ .Values.enableAuthorizationCookies | quote }}
+            {{- if .Values.forwardingUsername }}
+            - name: PROXY_FORWARDING_USERNAME
+            - value: {{ .Values.forwardingUsername | quote }}
+            {{- end }}
+            {{- if .Values.forwardingPassword }}
+            - name: PROXY_FORWARDING_PASSWORD
+            - value: {{ .Values.forwardingPassword | quote }}
+            {{- end }}
+
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          args:
+            - --config=/etc/keycloak/config.yml
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /oauth/health
+              port: 3000
+            initialDelaySeconds: 3
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /oauth/health
+              port: 3000
+            initialDelaySeconds: 3
+            timeoutSeconds: 2
+          volumeMounts:
+            - mountPath: /etc/keycloak
+              name: proxy-config
+      volumes:
+        - name: proxy-config
+          configMap:
+            defaultMode: 420
+            name: {{ template "keycloak-gatekeeper.fullname" . }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
