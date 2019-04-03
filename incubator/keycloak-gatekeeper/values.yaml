@@ -23,7 +23,7 @@ replicaCount: 1
 
 image:
   repository: docker.io/keycloak/keycloak-gatekeeper
-  tag: 4.6.0.Final
+  tag: 5.0.0
   pullPolicy: IfNotPresent
 
 service:
