@@ -62,8 +62,6 @@ spec:
               value: {{ .Values.enableSelfSignedTls | quote }}
             - name: PROXY_ENABLE_REQUEST_ID
               value: {{ .Values.enableRequestId | quote }}
-            - name: PROXY_ENABLE_REFRESH_TOKEN
-              value: {{ .Values.enableRefreshToken | quote }}
             - name: PROXY_ENABLE_LOGIN_HANDLER
               value: {{ .Values.enableLoginHandler | quote }}
             - name: PROXY_ENABLE_AUTHORIZATION_HEADER
@@ -83,8 +81,8 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
-          args:
-            - --config=/etc/keycloak/config.yml
+          # args:
+          #  - --config=/etc/keycloak/config.yml
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           livenessProbe:
