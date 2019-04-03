@@ -81,8 +81,8 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
-          # args:
-          #  - --config=/etc/keycloak/config.yml
+          args:
+            - --config=/etc/keycloak/config.yml
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           livenessProbe:
