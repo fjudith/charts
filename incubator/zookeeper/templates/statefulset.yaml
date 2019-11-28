@@ -52,10 +52,11 @@ spec:
         - name: zookeeper
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/bash
-            - -xec
-            - zkGenConfig.sh && exec zkServer.sh start-foreground
+        {{- with .Values.command }}
+          command: {{ range . }}
+             - {{ . | quote }}
+          {{- end }}
+        {{- end }}
           ports:
 {{- range $key, $port := .Values.ports }}
             - name: {{ $key }}
@@ -72,11 +73,31 @@ spec:
             - name: {{ $key | upper | replace "." "_" }}
               value: {{ $value | quote }}
           {{- end }}
+          {{- range $secret := .Values.secrets }}
+            {{- range $key := $secret.keys }}
+            - name: {{ (print $secret.name "_" $key) | upper }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret.name }}
+                  key: {{ $key }}
+            {{- end }}
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/zookeeper
+            {{- range $secret := .Values.secrets }}
+              {{- if $secret.mountPath }}
+                {{- range $key := $secret.keys }}
+            - name: {{ $.Release.Name }}-{{ $secret.name }}
+              mountPath: {{ $secret.mountPath }}/{{ $key }}
+              subPath: {{ $key }}
+              readOnly: true
+                {{- end }}
+              {{- end }}
+            {{- end }}
+
 
 {{- if .Values.exporters.jmx.enabled }}
         - name: jmx-exporter
@@ -148,8 +169,12 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
-      {{- if (or .Values.exporters.jmx.enabled (not .Values.persistence.enabled)) }}
       volumes:
+        {{- range .Values.secrets }}
+        - name: {{ $.Release.Name }}-{{ .name }}
+          secret:
+            secretName: {{ .name }}
+        {{- end }}
         {{- if .Values.exporters.jmx.enabled }}
         - name: config-jmx-exporter
           configMap:
@@ -159,7 +184,6 @@ spec:
         - name: data
           emptyDir: {}
         {{- end }}
-      {{- end }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:

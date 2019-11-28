@@ -4,7 +4,9 @@ kind: Service
 metadata:
 {{- if .Values.controller.stats.service.annotations }}
   annotations:
-{{ toYaml .Values.controller.stats.service.annotations | indent 4 }}
+  {{- range $key, $value := .Values.controller.stats.service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
 {{- end }}
   labels:
     app: {{ template "nginx-ingress.name" . }}
@@ -14,7 +16,9 @@ metadata:
     release: {{ .Release.Name }}
   name: {{ template "nginx-ingress.controller.fullname" . }}-stats
 spec:
+{{- if not .Values.controller.stats.service.omitClusterIP }}
   clusterIP: "{{ .Values.controller.stats.service.clusterIP }}"
+{{- end }}
 {{- if .Values.controller.stats.service.externalIPs }}
   externalIPs:
 {{ toYaml .Values.controller.stats.service.externalIPs | indent 4 }}

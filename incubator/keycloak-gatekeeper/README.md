@@ -43,9 +43,9 @@ The full list of parameters are available in the [values.yaml](./values.yaml).
 
 Parameter | Description | Default
 --- | --- | ---
-`image.repository` | Keycloak GateKeeper image repository | `keycloak/keycloak-gatekeeper`
-`image.tag` | Keycloak Gatekeeper image version | `4.6.0.Final`
-`image.pullPolicy` | Keycloak Gatekeeper image pull policy | `IfNotPresent`
+`image.repository` | Keycloak Proxy image repository | `jboss/keycloak-gatekeeper`
+`image.tag` | Keycloak Proxy image version | `5.0.0`
+`image.pullPolicy` | Keycloak Proxy image pull policy | `IfNotPresent`
 `service.type` | The service type | `ClusterIP`
 `service.port` | The service port | `80`
 `service.nodePort` | The service nodePort | `""`
