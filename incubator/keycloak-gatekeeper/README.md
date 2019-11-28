@@ -11,13 +11,13 @@ $ helm install incubator/keycloak-gatekeeper
 
 ## Introduction
 
-This chart bootstraps a [Keycloak Proxy](https://www.keycloak.org/docs/4.6/securing_apps/index.html#_keycloak_generic_adapter) Deployment on a [Kubernetes](https://kubernetes.io) cluster
-using the [Helm](https://helm.sh) package manager. It provisions a fully featured Keycloak Proxy installation.
+This chart bootstraps a [Keycloak Gatekeeper](https://www.keycloak.org/docs/4.6/securing_apps/index.html#_keycloak_generic_adapter) Deployment on a [Kubernetes](https://kubernetes.io) cluster
+using the [Helm](https://helm.sh) package manager. It provisions a fully featured Keycloak Gatekeeper installation.
 For more information on Keycloak and its capabilities, see its [documentation](https://www.keycloak.org/docs/4.6/securing_apps/index.html#_keycloak_generic_adaptery) and [Docker Hub repository](https://hub.docker.com/r/jboss/keycloak-gatekeeper/).
 
 ## Prerequisites Details
 
-Keycloak Proxy is designed primarily for Keycloak, an OpenID Connect identity provider. But it also works with other OpenID Connect identity providers.
+Keycloak Gatekeeper is designed primarily for Keycloak, an OpenID Connect identity provider. But it also works with other OpenID Connect identity providers.
 
 ## Installing the Chart
 
@@ -43,9 +43,9 @@ The full list of parameters are available in the [values.yaml](./values.yaml).
 
 Parameter | Description | Default
 --- | --- | ---
-`image.repository` | Keycloak Proxy image repository | `jboss/keycloak-gatekeeper`
-`image.tag` | Keycloak Proxy image version | `4.6.0.Final`
-`image.pullPolicy` | Keycloak Proxy image pull policy | `IfNotPresent`
+`image.repository` | Keycloak GateKeeper image repository | `keycloak/keycloak-gatekeeper`
+`image.tag` | Keycloak Gatekeeper image version | `4.6.0.Final`
+`image.pullPolicy` | Keycloak Gatekeeper image pull policy | `IfNotPresent`
 `service.type` | The service type | `ClusterIP`
 `service.port` | The service port | `80`
 `service.nodePort` | The service nodePort | `""`
@@ -59,12 +59,12 @@ Parameter | Description | Default
 `nodeSelector` | Node labels for pod assignment | `{}`
 `tolerations` | Tolerations for pod assignment | `[]`
 `affinity` | Node/Pod affinities | `{}`
-`configmap.listen` | the interface the service should be listening on [$PROXY_LISTEN], all interfaces is specified as ':<port>', unix sockets as unix://<REL_PATH> or </ABS PATH> | 0.0.0.0:3000 
-`configmap.discoveryUrl` | **Mandatory**: discovery url to retrieve the openid configuration [$PROXY_DISCOVERY_URL] | https://keycloack.example.com/auth/realms/default
-`configmap.clientId` | **Mandatory**: client id used to authenticate to the oauth service [$PROXY_CLIENT_ID] | CLIENT_ID
+`configmap.listen` | the interface the service should be listening on , all interfaces is specified as ':<port>', unix sockets as unix://<REL_PATH> or </ABS PATH> | 0.0.0.0:3000 
+`configmap.discoveryUrl` | **Mandatory**: discovery url to retrieve the openid configuration | https://keycloack.example.com/auth/realms/default
+`configmap.clientId` | **Mandatory**: client id used to authenticate to the oauth service | CLIENT_ID
 `configmap.clientSecret` | **Mandatory**: client secret used to authenticate to the oauth service [$PROXY_CLIENT_SECRET] | CLIENT_SECRET
 `configmap.redirectionUrl` | **Mandatory**: redirection url for the oauth callback url, defaults to host header is absent | https://mysite.example.com
-`configmap.upstreamUrl` | **Mandatory**:  url for the upstream endpoint you wish to proxy [$PROXY_UPSTREAM_URL] | http://servicename.namespace.svc.cluster.local`
+`configmap.upstreamUrl` | **Mandatory**:  url for the upstream endpoint you wish to proxy | http://servicename.namespace.svc.cluster.local`
 `configmap.resources` | a collection of resource i.e. urls that you wish to protect | 'uri:\n /*'
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
@@ -226,4 +226,4 @@ data:
 ```
 ## Demo
 
-[Keycloak Proxy Demo](https://github.com/YunSangJun/keycloak-gatekeeper-demo) will help you understand the concept and behavior of this Proxy.
+[Keycloak Proxy Demo](https://github.com/YunSangJun/keycloak-proxy-demo) will help you understand the concept and behavior of this Proxy.
